@@ -1,0 +1,18 @@
+# 3D mesh loading (OBJ files, keeps each building as a separate named mesh)
+trimesh
+# Interactive 3D viewing; the [jupyter] extra adds the in-notebook viewer (trame)
+pyvista[jupyter]
+# Coordinate math
+numpy
+# Reads image sizes (aerial photo, groundplan) in citymap/loading.py
+pillow
+# Lets VS Code run notebooks with this .venv as the kernel
+ipykernel
+# Tables: reads catalog.csv into a DataFrame to search and filter buildings (Phase 3)
+pandas
+# Reads the groundplan DXF files (building footprints, Phase 3 Step 7)
+ezdxf
+# 2D shapes: merges a building's flattened triangles into its outline seen from above (Phase 3 Step 7)
+shapely
+# Coordinate conversions (latitude/longitude <-> MA State Plane): checks the street data's position (Phase 4 Step 7)
+pyproj

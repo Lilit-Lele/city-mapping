@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Boston 3D: Views and Sun</title>
+  <style>
+    :root {
+      --panel-bg: rgba(255, 255, 255, 0.95);
+      --text: #1d1d1b;
+      --muted: #66665f;
+      --line: #d9d9d4;
+      --accent: #c2410c;
+      --page-bg: #eceded;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --panel-bg: rgba(30, 30, 28, 0.95);
+        --text: #ecece8;
+        --muted: #a5a59d;
+        --line: #44443f;
+        --accent: #fb923c;
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; overflow: hidden; background: var(--page-bg);
+                 font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--text); }
+    #view { position: fixed; inset: 0; }
+    .panel { position: fixed; width: 340px; max-width: calc(100% - 24px); background: var(--panel-bg);
+             border: 1px solid var(--line); border-radius: 10px; padding: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.12); }
+    #controls { top: 12px; left: 12px; max-height: calc(100% - 24px); overflow-y: auto; }
+    #info { bottom: 12px; left: 12px; display: none; max-height: 55%; overflow-y: auto; }
+    .mismatch { color: var(--accent); margin-top: 2px; }
+    .data-note { margin-top: 2px; font-style: italic; }
+    .detail-title { font-weight: 600; color: var(--text); margin-top: 6px; }
+    #spot { top: 12px; right: 12px; width: 380px; max-height: calc(100% - 24px); overflow-y: auto; display: none; }
+    h1 { font-size: 15px; margin: 0 0 8px; }
+    h2 { font-size: 13px; margin: 12px 0 4px; padding-top: 8px; border-top: 1px solid var(--line); }
+    .row { display: flex; gap: 6px; margin: 6px 0; align-items: center; flex-wrap: wrap; }
+    input[type=search], input[type=date], select { flex: 1; min-width: 0; padding: 6px 8px; border: 1px solid var(--line);
+             border-radius: 6px; background: transparent; color: inherit; font: inherit; }
+    select option { color: #1d1d1b; }
+    button { padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: transparent;
+             color: inherit; font: inherit; cursor: pointer; }
+    button:hover:not(:disabled) { border-color: var(--accent); }
+    button:disabled { opacity: .45; cursor: default; }
+    button.primary { border-color: var(--accent); color: var(--accent); }
+    .list { list-style: none; margin: 4px 0; padding: 0; max-height: 200px; overflow-y: auto; }
+    .list li button { width: 100%; text-align: left; border: none; border-bottom: 1px solid var(--line);
+                      border-radius: 0; padding: 4px 2px; }
+    .list li button:hover { color: var(--accent); }
+    .small { font-size: 12px; color: var(--muted); }
+    #message { min-height: 1.4em; }
+    .swatch { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin: 0 4px 0 0;
+              vertical-align: -1px; border: 1px solid rgba(0,0,0,.25); }
+    #legend div { margin: 2px 0; }
+    #info .name { font-weight: 600; margin-bottom: 4px; }
+    a { color: var(--accent); }
+    .close { float: right; padding: 0 6px; }
+    #loading { position: fixed; right: 12px; bottom: 12px; }
+    table { border-collapse: collapse; width: 100%; font-size: 12px; }
+    td, th { text-align: left; padding: 2px 4px; border-bottom: 1px solid var(--line); }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    #timeline { display: flex; height: 22px; border: 1px solid var(--muted); margin-top: 6px; }
+    #timeline div { flex: 1; }
+    #timeline-hours { position: relative; height: 16px; font-size: 11px; color: var(--muted); }
+    #timeline-hours span { position: absolute; transform: translateX(-50%); }
+    #timeline-hover { min-height: 1.4em; }
+    .gradient { height: 10px; border: 1px solid var(--muted); margin-top: 4px; }
+    input[type=range] { flex: 1; min-width: 0; }
+    .slider-value { min-width: 3.5em; text-align: right; font-variant-numeric: tabular-nums; }
+    /* labels in the 3D view (they don't take clicks, so clicks go through to the map) */
+    #labels { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; }
+    .panel { z-index: 2; }
+    .label { font: 11px/1.2 system-ui, sans-serif; padding: 1px 4px; border-radius: 3px; white-space: nowrap; color: #1d2a3a; }
+    .street-label { background: rgba(255, 247, 214, .85); }
+    .tallest-label { background: rgba(232, 238, 252, .92); font-size: 12px; }
+    .saved-label { background: rgba(255, 255, 255, .9); font-weight: 700; font-size: 12px; border-left: 4px solid; }
+    .saved-list li { display: flex; }
+    .saved-list li button.go { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .saved-list li button.tool { width: auto; flex: none; padding: 4px 6px; color: var(--muted); }
+    .save-buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+        "three-mesh-bvh": "https://cdn.jsdelivr.net/npm/three-mesh-bvh@0.7.6/build/index.module.js"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="view"></div>
+
+  <!-- Notebook 6: search, colors, future buildings -->
+  <div id="controls" class="panel">
+    <h1>Boston 3D: views and sun</h1>
+    <form id="search-form" class="row">
+      <input id="search-text" type="search" placeholder="Name or address, e.g. hancock" autocomplete="off">
+      <button type="submit">Search</button>
+    </form>
+    <ul id="results" class="list"></ul>
+    <div class="row">
+      <label for="color-menu">Color:</label>
+      <select id="color-menu"></select>
+    </div>
+    <div class="row">
+      <label><input id="future-box" type="checkbox"> Show future buildings</label>
+    </div>
+    <div class="row">
+      <button id="home-button">Home view</button>
+      <button id="overview-button">Overview</button>
+      <button id="clear-button">Clear highlight</button>
+    </div>
+    <div id="legend" class="small"></div>
+    <div id="message" class="small"></div>
+    <div class="small">Click a building's <b>wall</b> to check its view and sun.</div>
+
+    <!-- Notebook 8, Step 8: what's drawn on top of the city -->
+    <h2>Show</h2>
+    <div class="row">
+      <label><input id="saved-box" type="checkbox" checked> Saved</label>
+      <label><input id="streets-box" type="checkbox" checked> Street names</label>
+      <label><input id="major-box" type="checkbox" checked> Only major streets</label>
+    </div>
+    <div class="row small">
+      <label for="length-slider">Min. street length</label>
+      <input id="length-slider" type="range" min="0" max="3000" step="100" value="300">
+      <span id="length-value" class="slider-value">300 ft</span>
+    </div>
+    <div class="row small">
+      <label for="tallest-slider">Tallest buildings</label>
+      <input id="tallest-slider" type="range" min="0" max="30" step="1" value="0">
+      <span id="tallest-value" class="slider-value">0</span>
+    </div>
+    <div id="labels-note" class="small"></div>
+
+    <!-- Saved buildings and spots: kept in this browser only (localStorage) -->
+    <h2>Saved</h2>
+    <ul id="saved-list" class="list saved-list"></ul>
+    <div id="saved-note" class="small"></div>
+  </div>
+
+  <div id="labels"></div>
+
+  <div id="info" class="panel"></div>
+
+  <!-- Notebook 8, Step 9: view check and sun exposure for the clicked spot -->
+  <div id="spot" class="panel">
+    <button id="spot-close" class="close" title="Clear the spot">×</button>
+    <h1>Spot</h1>
+    <div id="spot-text" class="small"></div>
+
+    <h2>View check</h2>
+    <div class="small">Level rays every 2° over the half the wall faces, up to 2 miles.</div>
+    <div class="row"><button id="view-button" class="primary">Show the view</button></div>
+    <div id="view-result"></div>
+
+    <h2>Sun</h2>
+    <div class="row">
+      <input id="sun-date" type="date">
+      <button data-day="12-21">Dec 21</button>
+      <button data-day="03-20">Mar 20</button>
+      <button data-day="06-21">Jun 21</button>
+    </div>
+    <div class="row"><button id="sun-button" class="primary">Sun on this spot</button></div>
+    <div id="sun-result"></div>
+
+    <h2>Whole wall</h2>
+    <div class="small">Hours of direct sun for every ~10 × 12 ft cell of this wall, on the date above (20-minute steps).</div>
+    <div class="row"><button id="wall-button" class="primary">Color the wall</button></div>
+    <div id="wall-result"></div>
+
+    <div class="small" style="margin-top:10px">Only our 15 tiles have buildings: rays that leave them are
+      <b>unknown</b> (view) or <b>sun?</b> (sun), never "open". No trees. Spots and floors are approximate.</div>
+  </div>
+
+  <div id="loading" class="panel small">Loading…</div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

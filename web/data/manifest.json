@@ -1,0 +1,99 @@
+{
+ "units": "feet; Z up; x east, y north; centered on loading.GLOBAL_ORIGIN",
+ "texture_size": 2048,
+ "tiles": [
+  {
+   "name": "BOS_F_4",
+   "file": "tiles/BOS_F_4.bin.gz",
+   "future_file": null,
+   "photo": "tiles/BOS_F_4.jpg"
+  },
+  {
+   "name": "BOS_G_4",
+   "file": "tiles/BOS_G_4.bin.gz",
+   "future_file": null,
+   "photo": "tiles/BOS_G_4.jpg"
+  },
+  {
+   "name": "BOS_H_4",
+   "file": "tiles/BOS_H_4.bin.gz",
+   "future_file": "tiles/BOS_H_4_future.bin.gz",
+   "photo": "tiles/BOS_H_4.jpg"
+  },
+  {
+   "name": "BOS_I_4",
+   "file": "tiles/BOS_I_4.bin.gz",
+   "future_file": "tiles/BOS_I_4_future.bin.gz",
+   "photo": "tiles/BOS_I_4.jpg"
+  },
+  {
+   "name": "BOS_J_4",
+   "file": "tiles/BOS_J_4.bin.gz",
+   "future_file": null,
+   "photo": "tiles/BOS_J_4.jpg"
+  },
+  {
+   "name": "BOS_F_5",
+   "file": "tiles/BOS_F_5.bin.gz",
+   "future_file": "tiles/BOS_F_5_future.bin.gz",
+   "photo": "tiles/BOS_F_5.jpg"
+  },
+  {
+   "name": "BOS_G_5",
+   "file": "tiles/BOS_G_5.bin.gz",
+   "future_file": "tiles/BOS_G_5_future.bin.gz",
+   "photo": "tiles/BOS_G_5.jpg"
+  },
+  {
+   "name": "BOS_H_5",
+   "file": "tiles/BOS_H_5.bin.gz",
+   "future_file": "tiles/BOS_H_5_future.bin.gz",
+   "photo": "tiles/BOS_H_5.jpg"
+  },
+  {
+   "name": "BOS_I_5",
+   "file": "tiles/BOS_I_5.bin.gz",
+   "future_file": "tiles/BOS_I_5_future.bin.gz",
+   "photo": "tiles/BOS_I_5.jpg"
+  },
+  {
+   "name": "BOS_J_5",
+   "file": "tiles/BOS_J_5.bin.gz",
+   "future_file": "tiles/BOS_J_5_future.bin.gz",
+   "photo": "tiles/BOS_J_5.jpg"
+  },
+  {
+   "name": "BOS_F_6",
+   "file": "tiles/BOS_F_6.bin.gz",
+   "future_file": "tiles/BOS_F_6_future.bin.gz",
+   "photo": "tiles/BOS_F_6.jpg"
+  },
+  {
+   "name": "BOS_G_6",
+   "file": "tiles/BOS_G_6.bin.gz",
+   "future_file": "tiles/BOS_G_6_future.bin.gz",
+   "photo": "tiles/BOS_G_6.jpg"
+  },
+  {
+   "name": "BOS_H_6",
+   "file": "tiles/BOS_H_6.bin.gz",
+   "future_file": "tiles/BOS_H_6_future.bin.gz",
+   "photo": "tiles/BOS_H_6.jpg"
+  },
+  {
+   "name": "BOS_I_6",
+   "file": "tiles/BOS_I_6.bin.gz",
+   "future_file": "tiles/BOS_I_6_future.bin.gz",
+   "photo": "tiles/BOS_I_6.jpg"
+  },
+  {
+   "name": "BOS_J_6",
+   "file": "tiles/BOS_J_6.bin.gz",
+   "future_file": "tiles/BOS_J_6_future.bin.gz",
+   "photo": "tiles/BOS_J_6.jpg"
+  }
+ ],
+ "streets": "streets.json",
+ "annotations": null,
+ "building_units": "building_units.json"
+}
